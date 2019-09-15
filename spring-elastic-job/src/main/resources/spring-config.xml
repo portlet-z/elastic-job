@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:reg="http://www.dangdang.com/schema/ddframe/reg"
+       xmlns:job="http://www.dangdang.com/schema/ddframe/job"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.dangdang.com/schema/ddframe/reg
+       http://www.dangdang.com/schema/ddframe/reg/reg.xsd
+       http://www.dangdang.com/schema/ddframe/job
+       http://www.dangdang.com/schema/ddframe/job/job.xsd"
+>
+
+       <!-- 注册中心 -->
+       <reg:zookeeper server-lists="localhost:2181" namespace="spring-elastic-job" id="zkCenter" />
+
+       <!-- simple 作业配置 -->
+       <job:simple registry-center-ref="zkCenter"
+                   id="mySimpleJob"
+                   cron="0/10 * * * * ?"
+                   sharding-total-count="2"
+                   class="com.bytebuf.job.MySimpleJob" />
+</beans>

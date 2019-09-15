@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.bytebuf.autoconfig.ZookeeperAutoConfig,\
+com.bytebuf.autoconfig.SimpleJobAutoConfig
