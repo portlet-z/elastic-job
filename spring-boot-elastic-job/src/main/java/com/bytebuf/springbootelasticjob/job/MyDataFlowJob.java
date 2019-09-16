@@ -1,6 +1,5 @@
 package com.bytebuf.springbootelasticjob.job;
 
-import com.bytebuf.autoconfig.ElasticDataFlowJob;
 import com.dangdang.ddframe.job.api.ShardingContext;
 import com.dangdang.ddframe.job.api.dataflow.DataflowJob;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +12,7 @@ import java.util.List;
  * @date: 2019/9/15 10:40 下午
  */
 @Slf4j
-@ElasticDataFlowJob(jobName = "myDataFlowJob", cron = "0/10 * * * * ?", shardingTotalCount = 2, overwrite = true, streamingProcess = true)
+//@ElasticDataFlowJob(jobName = "myDataFlowJob", cron = "0/10 * * * * ?", shardingTotalCount = 2, overwrite = true, streamingProcess = true)
 public class MyDataFlowJob implements DataflowJob<Integer> {
 
     private List<Integer> list = new ArrayList<>();

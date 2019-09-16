@@ -1,5 +1,7 @@
 package com.bytebuf.springbootelasticjob;
 
+import com.bytebuf.springbootelasticjob.dao.JdOrderMapper;
+import com.bytebuf.springbootelasticjob.dao.TmallOrderMapper;
 import com.bytebuf.springbootelasticjob.model.Order;
 import com.bytebuf.springbootelasticjob.service.OrderService;
 import org.junit.Test;
@@ -18,6 +20,12 @@ public class SpringBootElasticJobApplicationTests {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private JdOrderMapper jdOrderMapper;
+
+    @Autowired
+    private TmallOrderMapper tmallOrderMapper;
+
     @Test
     public void testOrder() {
         orderService.insertOrder();
@@ -30,6 +38,21 @@ public class SpringBootElasticJobApplicationTests {
 
         List<Order> orders = orderService.getOrder(now, 2, 1);
         System.out.println(orders);
+    }
+
+    @Test
+    public void testThirdOrder() {
+        orderService.produceThirdOrder();
+    }
+
+    @Test
+    public void fetchJdOrder() {
+        System.out.println(jdOrderMapper.getNotFetchedOrder(5));
+    }
+
+    @Test
+    public void fetchTmallOrder() {
+        System.out.println(tmallOrderMapper.getNotFetchedOrder(5));
     }
 
     @Test

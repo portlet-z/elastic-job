@@ -1,6 +1,5 @@
 package com.bytebuf.springbootelasticjob.job;
 
-import com.bytebuf.autoconfig.ElasticSimpleJob;
 import com.bytebuf.springbootelasticjob.model.Order;
 import com.bytebuf.springbootelasticjob.service.OrderService;
 import com.dangdang.ddframe.job.api.ShardingContext;
@@ -16,7 +15,7 @@ import java.util.List;
  * @date: 2019/9/15 9:59 下午
  */
 @Slf4j
-@ElasticSimpleJob(jobName = "mySimpleJob", cron = "0/10 * * * * ?", shardingTotalCount = 1, overwrite = true)
+//@ElasticSimpleJob(jobName = "mySimpleJob", cron = "0/10 * * * * ?", shardingTotalCount = 1, overwrite = true)
 public class MySimpleJob implements SimpleJob {
 
     @Autowired
