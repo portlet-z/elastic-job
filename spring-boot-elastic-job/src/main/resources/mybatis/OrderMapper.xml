@@ -364,7 +364,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
-  <select id="getOrder" resultType="com.bytebuf.springbootelasticjob.model.Order">
+  <select id="getOrder" resultMap="BaseResultMap">
     select <include refid="Base_Column_List" />
     from t_order
     <where>
@@ -373,4 +373,15 @@
       and id % #{param2} = #{param3}
     </where>
   </select>
+
+  <update id="cancelOrder">
+    update t_order set
+    status = #{param3},
+    update_user = #{param4},
+    update_time = #{param5}
+    <where>
+      id = #{param1}
+      and update_time = #{param2}
+    </where>
+  </update>
 </mapper>

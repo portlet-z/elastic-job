@@ -97,4 +97,6 @@ public interface OrderMapper {
     int updateByPrimaryKey(Order record);
 
     List<Order> getOrder(Date time, int shardingTotalCount, int shardingItem);
+
+    int cancelOrder(Integer orderId, Date updateTime, int status, String updateUser, Date updateNow);
 }
