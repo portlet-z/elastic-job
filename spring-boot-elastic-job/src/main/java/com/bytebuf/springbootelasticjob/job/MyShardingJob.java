@@ -1,7 +1,8 @@
 package com.bytebuf.springbootelasticjob.job;
 
 import com.bytebuf.autoconfig.ElasticSimpleJob;
-import com.bytebuf.autoconfig.sharding.MyShardingStrategy;
+import com.bytebuf.springbootelasticjob.listener.MyNormalListener;
+import com.bytebuf.springbootelasticjob.sharding.MyShardingStrategy;
 import com.dangdang.ddframe.job.api.ShardingContext;
 import com.dangdang.ddframe.job.api.simple.SimpleJob;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,8 @@ import lombok.extern.slf4j.Slf4j;
         overwrite = true,
         shardingTotalCount = 10,
         jobStrategy = MyShardingStrategy.class,
-        jobEvent = true
+        jobEvent = false,
+        jobListener = MyNormalListener.class
 )
 @Slf4j
 public class MyShardingJob implements SimpleJob {

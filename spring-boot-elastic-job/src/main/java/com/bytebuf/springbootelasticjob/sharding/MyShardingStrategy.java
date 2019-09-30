@@ -1,4 +1,4 @@
-package com.bytebuf.autoconfig.sharding;
+package com.bytebuf.springbootelasticjob.sharding;
 
 import com.dangdang.ddframe.job.lite.api.strategy.JobInstance;
 import com.dangdang.ddframe.job.lite.api.strategy.JobShardingStrategy;

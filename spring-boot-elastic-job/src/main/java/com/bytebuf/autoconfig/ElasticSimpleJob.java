@@ -1,5 +1,7 @@
 package com.bytebuf.autoconfig;
 
+import com.dangdang.ddframe.job.lite.api.listener.ElasticJobListener;
+import com.dangdang.ddframe.job.lite.api.strategy.JobShardingStrategy;
 import com.dangdang.ddframe.job.lite.api.strategy.impl.AverageAllocationJobShardingStrategy;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,7 @@ public @interface ElasticSimpleJob {
     String cron() default "";
     int shardingTotalCount() default 1;
     boolean overwrite() default false;
-    Class<?> jobStrategy() default AverageAllocationJobShardingStrategy.class;
+    Class<? extends JobShardingStrategy> jobStrategy() default AverageAllocationJobShardingStrategy.class;
     boolean jobEvent() default false;
+    Class<? extends ElasticJobListener>[] jobListener() default {};
 }

@@ -1,5 +1,6 @@
 package com.bytebuf.autoconfig;
 
+import com.dangdang.ddframe.job.lite.api.listener.ElasticJobListener;
 import com.dangdang.ddframe.job.lite.api.strategy.impl.AverageAllocationJobShardingStrategy;
 import org.springframework.stereotype.Component;
 
@@ -20,4 +21,5 @@ public @interface ElasticDataFlowJob {
     boolean streamingProcess() default false;
     Class<?> jobStrategy() default AverageAllocationJobShardingStrategy.class;
     boolean isJobEvent() default false;
+    Class<? extends ElasticJobListener>[] jobListener() default {};
 }

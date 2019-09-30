@@ -1,5 +1,6 @@
 package com.bytebuf.autoconfig;
 
+import com.bytebuf.springbootelasticjob.listener.MyDistributeListener;
 import com.dangdang.ddframe.job.api.ElasticJob;
 import com.dangdang.ddframe.job.api.simple.SimpleJob;
 import com.dangdang.ddframe.job.config.JobCoreConfiguration;
@@ -7,6 +8,7 @@ import com.dangdang.ddframe.job.config.JobTypeConfiguration;
 import com.dangdang.ddframe.job.config.simple.SimpleJobConfiguration;
 import com.dangdang.ddframe.job.event.JobEventConfiguration;
 import com.dangdang.ddframe.job.event.rdb.JobEventRdbConfiguration;
+import com.dangdang.ddframe.job.lite.api.listener.ElasticJobListener;
 import com.dangdang.ddframe.job.lite.config.LiteJobConfiguration;
 import com.dangdang.ddframe.job.lite.spring.api.SpringJobScheduler;
 import com.dangdang.ddframe.job.reg.base.CoordinatorRegistryCenter;
@@ -18,6 +20,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 /**
@@ -39,7 +42,7 @@ public class SimpleJobAutoConfig {
     private DataSource dataSource;
 
     @PostConstruct
-    public void initSimpleJob() {
+    public void initSimpleJob() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Map<String, Object> beans = applicationContext.getBeansWithAnnotation(ElasticSimpleJob.class);
         for (Map.Entry<String, Object> entry : beans.entrySet()) {
             Object instance = entry.getValue();
@@ -53,6 +56,18 @@ public class SimpleJobAutoConfig {
                     boolean overwrite = annotation.overwrite();
                     Class<?> jobStrategy = annotation.jobStrategy();
                     boolean isJobEvent = annotation.jobEvent();
+                    Class<? extends ElasticJobListener>[] listeners = annotation.jobListener();
+                    ElasticJobListener[] listenersInstances = null;
+                    if (listeners != null && listeners.length > 0) {
+                        listenersInstances = new ElasticJobListener[listeners.length];
+                        int i = 0;
+                        for (Class<? extends ElasticJobListener> listener : listeners) {
+                            ElasticJobListener listenerInstance = listener.getDeclaredConstructor().newInstance();
+                            listenersInstances[i++] = listenerInstance;
+                        }
+                    } else {
+                        listenersInstances = new ElasticJobListener[0];
+                    }
 
                     JobCoreConfiguration jcc = JobCoreConfiguration.newBuilder(jobName, cron, shardingTotalCount).build();
                     JobTypeConfiguration jtc = new SimpleJobConfiguration(jcc, instance.getClass().getCanonicalName());
@@ -65,9 +80,10 @@ public class SimpleJobAutoConfig {
 
                     if (isJobEvent) {
                         JobEventConfiguration jec = new JobEventRdbConfiguration(dataSource);
-                        new SpringJobScheduler((ElasticJob) instance, zkCenter, ljc, jec).init();
+                        new SpringJobScheduler((ElasticJob) instance, zkCenter, ljc, jec, listenersInstances).init();
                     } else {
-                        new SpringJobScheduler((ElasticJob) instance, zkCenter, ljc).init();
+                        MyDistributeListener myDistributeListener = new MyDistributeListener(5000, 5000);
+                        new SpringJobScheduler((ElasticJob) instance, zkCenter, ljc, myDistributeListener).init();
                     }
                 }
             }

@@ -7,6 +7,7 @@ import com.dangdang.ddframe.job.config.JobTypeConfiguration;
 import com.dangdang.ddframe.job.config.dataflow.DataflowJobConfiguration;
 import com.dangdang.ddframe.job.event.JobEventConfiguration;
 import com.dangdang.ddframe.job.event.rdb.JobEventRdbConfiguration;
+import com.dangdang.ddframe.job.lite.api.listener.ElasticJobListener;
 import com.dangdang.ddframe.job.lite.config.LiteJobConfiguration;
 import com.dangdang.ddframe.job.lite.spring.api.SpringJobScheduler;
 import com.dangdang.ddframe.job.reg.base.CoordinatorRegistryCenter;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 /**
@@ -39,7 +41,7 @@ public class DataFlowJobAutoConfig {
     private DataSource dataSource;
 
     @PostConstruct
-    public void initSimpleJob() {
+    public void initSimpleJob() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Map<String, Object> beans = applicationContext.getBeansWithAnnotation(ElasticDataFlowJob.class);
         for (Map.Entry<String, Object> entry : beans.entrySet()) {
             Object instance = entry.getValue();
@@ -54,7 +56,18 @@ public class DataFlowJobAutoConfig {
                     boolean streamingProcess = annotation.streamingProcess();
                     Class<?> jobStrategy = annotation.jobStrategy();
                     boolean isJobEvent = annotation.isJobEvent();
-
+                    Class<? extends ElasticJobListener>[] listeners = annotation.jobListener();
+                    ElasticJobListener[] listenersInstances = null;
+                    if (listeners != null && listeners.length > 0) {
+                        listenersInstances = new ElasticJobListener[listeners.length];
+                        int i = 0;
+                        for (Class<? extends ElasticJobListener> listener : listeners) {
+                            ElasticJobListener listenerInstance = listener.getDeclaredConstructor().newInstance();
+                            listenersInstances[i++] = listenerInstance;
+                        }
+                    } else {
+                        listenersInstances = new ElasticJobListener[0];
+                    }
                     JobCoreConfiguration jcc = JobCoreConfiguration.newBuilder(jobName, cron, shardingTotalCount).build();
                     JobTypeConfiguration jtc = new DataflowJobConfiguration(jcc, instance.getClass().getCanonicalName(), streamingProcess);
 
@@ -65,9 +78,9 @@ public class DataFlowJobAutoConfig {
                             .build();
                     if (isJobEvent) {
                         JobEventConfiguration jec = new JobEventRdbConfiguration(dataSource);
-                        new SpringJobScheduler((ElasticJob) instance, zkCenter, ljc, jec).init();
+                        new SpringJobScheduler((ElasticJob) instance, zkCenter, ljc, jec, listenersInstances).init();
                     } else {
-                        new SpringJobScheduler((ElasticJob) instance,zkCenter, ljc).init();
+                        new SpringJobScheduler((ElasticJob) instance,zkCenter, ljc, listenersInstances).init();
                     }
                 }
             }
