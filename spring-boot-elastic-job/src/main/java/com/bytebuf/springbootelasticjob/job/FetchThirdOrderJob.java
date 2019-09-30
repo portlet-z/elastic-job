@@ -1,6 +1,5 @@
 package com.bytebuf.springbootelasticjob.job;
 
-import com.bytebuf.autoconfig.ElasticDataFlowJob;
 import com.bytebuf.springbootelasticjob.dao.JdOrderMapper;
 import com.bytebuf.springbootelasticjob.dao.TmallOrderMapper;
 import com.bytebuf.springbootelasticjob.model.AllOrder;
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
  * @author: 张新征
  * @date: 2019/9/17 6:53 上午
  */
-@ElasticDataFlowJob(jobName = "fetchThirdOrderJob", cron = "0/15 * * * * ?", shardingTotalCount = 2, overwrite = true, streamingProcess = true)
+//@ElasticDataFlowJob(jobName = "fetchThirdOrderJob", cron = "0/15 * * * * ?", shardingTotalCount = 2, overwrite = true, streamingProcess = true)
 public class FetchThirdOrderJob implements DataflowJob<Object> {
 
     @Autowired

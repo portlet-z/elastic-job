@@ -1,5 +1,6 @@
 package com.bytebuf.autoconfig;
 
+import com.dangdang.ddframe.job.lite.api.strategy.impl.AverageAllocationJobShardingStrategy;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.ElementType;
@@ -16,4 +17,6 @@ public @interface ElasticSimpleJob {
     String cron() default "";
     int shardingTotalCount() default 1;
     boolean overwrite() default false;
+    Class<?> jobStrategy() default AverageAllocationJobShardingStrategy.class;
+    boolean jobEvent() default false;
 }

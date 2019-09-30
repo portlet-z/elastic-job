@@ -5,6 +5,8 @@ import com.dangdang.ddframe.job.api.simple.SimpleJob;
 import com.dangdang.ddframe.job.config.JobCoreConfiguration;
 import com.dangdang.ddframe.job.config.JobTypeConfiguration;
 import com.dangdang.ddframe.job.config.simple.SimpleJobConfiguration;
+import com.dangdang.ddframe.job.event.JobEventConfiguration;
+import com.dangdang.ddframe.job.event.rdb.JobEventRdbConfiguration;
 import com.dangdang.ddframe.job.lite.config.LiteJobConfiguration;
 import com.dangdang.ddframe.job.lite.spring.api.SpringJobScheduler;
 import com.dangdang.ddframe.job.reg.base.CoordinatorRegistryCenter;
@@ -15,6 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 import java.util.Map;
 
 /**
@@ -32,6 +35,9 @@ public class SimpleJobAutoConfig {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @Autowired
+    private DataSource dataSource;
+
     @PostConstruct
     public void initSimpleJob() {
         Map<String, Object> beans = applicationContext.getBeansWithAnnotation(ElasticSimpleJob.class);
@@ -45,13 +51,24 @@ public class SimpleJobAutoConfig {
                     String cron = annotation.cron();
                     int shardingTotalCount = annotation.shardingTotalCount();
                     boolean overwrite = annotation.overwrite();
+                    Class<?> jobStrategy = annotation.jobStrategy();
+                    boolean isJobEvent = annotation.jobEvent();
 
                     JobCoreConfiguration jcc = JobCoreConfiguration.newBuilder(jobName, cron, shardingTotalCount).build();
                     JobTypeConfiguration jtc = new SimpleJobConfiguration(jcc, instance.getClass().getCanonicalName());
 
-                    LiteJobConfiguration ljc = LiteJobConfiguration.newBuilder(jtc).overwrite(overwrite).build();
+                    LiteJobConfiguration ljc = LiteJobConfiguration
+                            .newBuilder(jtc)
+                            .jobShardingStrategyClass(jobStrategy.getCanonicalName())
+                            .overwrite(overwrite)
+                            .build();
 
-                    new SpringJobScheduler((ElasticJob)instance,zkCenter, ljc).init();
+                    if (isJobEvent) {
+                        JobEventConfiguration jec = new JobEventRdbConfiguration(dataSource);
+                        new SpringJobScheduler((ElasticJob) instance, zkCenter, ljc, jec).init();
+                    } else {
+                        new SpringJobScheduler((ElasticJob) instance, zkCenter, ljc).init();
+                    }
                 }
             }
         }
