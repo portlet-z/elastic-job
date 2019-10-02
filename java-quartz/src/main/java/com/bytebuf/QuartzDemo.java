@@ -1,6 +1,7 @@
 package com.bytebuf;
 
 import com.bytebuf.job.MyJob;
+import com.bytebuf.listener.MyJobListener;
 import com.bytebuf.listener.MyTriggerListener;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
@@ -53,6 +54,7 @@ public class QuartzDemo {
         scheduler.scheduleJob(jobDetail2, trigger2);
 
         scheduler.getListenerManager().addTriggerListener(new MyTriggerListener());
+        scheduler.getListenerManager().addJobListener(new MyJobListener());
 
         try {
             Thread.sleep(600 * 1000);
