@@ -1,6 +1,7 @@
 package com.bytebuf.springbootquartz.config;
 
 import com.bytebuf.springbootquartz.job.MyJob;
+import com.bytebuf.springbootquartz.listener.MyTriggerListener;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,5 +33,10 @@ public class QuartzConfig {
                 .repeatForever())
                 .build();
         return trigger;
+    }
+
+    @Bean
+    public TriggerListener myTriggerListener() {
+        return new MyTriggerListener();
     }
 }
